@@ -11,21 +11,22 @@ namespace MassTransit.EventStoreIntegration.Audit
     public class EventStoreMessageAudit : IMessageAuditStore
     {
         private readonly IEventStoreConnection _connection;
-        private readonly string _auditStreamName;
 
-        public EventStoreMessageAudit(IEventStoreConnection connection, string auditStreamName)
+        public string StreamName { get; private set; }
+
+		public EventStoreMessageAudit(IEventStoreConnection connection, string auditStreamName)
         {
             _connection = connection;
-            _auditStreamName = auditStreamName;
-        }
+			StreamName = auditStreamName;
+		}
 
         public async Task StoreMessage<T>(T message, MessageAuditMetadata metadata) where T : class
         {
             var auditEvent = new EventData(Guid.NewGuid(), TypeMetadataCache<T>.ShortName,
                 true, Serialise(message), Serialise(metadata));
-            await _connection.AppendToStreamAsync(_auditStreamName, ExpectedVersion.Any, auditEvent)
+            await _connection.AppendToStreamAsync(StreamName, ExpectedVersion.Any, auditEvent)
                 .ConfigureAwait(false);
-        }
+		}
 
         private static byte[] Serialise(object @event)
         {
@@ -34,7 +35,6 @@ namespace MassTransit.EventStoreIntegration.Audit
                 using (var writer = new StreamWriter(stream))
                 {
                     JsonSerializer.CreateDefault().Serialize(writer, @event);
-                    writer.Flush();
                 }
                 return stream.ToArray();
             }
