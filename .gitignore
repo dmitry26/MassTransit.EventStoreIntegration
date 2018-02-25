@@ -11,9 +11,9 @@ packages
 
 .fake
 
-src/logs/*
+src/**/logs
 
-**/*.sln*
+# **/*.sln*
 bin
 obj
 _ReSharper*
@@ -30,6 +30,9 @@ _ReSharper*
 
 NuGet.exe
 packages
+
+.paket/paket.exe
+paket-files
 
 # Tests
 TestResult.xml

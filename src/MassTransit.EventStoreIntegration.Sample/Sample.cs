@@ -5,6 +5,8 @@ using Automatonymous;
 using EventStore.ClientAPI;
 using EventStore.SerilogAdapter;
 using GreenPipes;
+using MassTransit;
+using MassTransit.EventStoreIntegration.Audit;
 using MassTransit.EventStoreIntegration.Saga;
 using Serilog;
 
@@ -14,10 +16,11 @@ namespace MassTransit.EventStoreIntegration.Sample
     {
         private IBusControl _bus;
         private IEventStoreConnection _connection;
+		private EventStoreMessageAudit _auditStore;
 
-        public Sample()
+		public Sample()
         {
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.LiterateConsole().CreateLogger();
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().CreateLogger();
 
             var connectionString = ConfigurationManager.ConnectionStrings["eventStore"];
             _connection = EventStoreConnection.Create(connectionString.ConnectionString,
@@ -27,8 +30,8 @@ namespace MassTransit.EventStoreIntegration.Sample
             _bus = Bus.Factory.CreateUsingRabbitMq(c =>
             {
                 c.UseSerilog();
-                c.UseConcurrencyLimit(1);
-                c.PrefetchCount = 1;
+                /*c.UseConcurrencyLimit(1);
+                c.PrefetchCount = 1;*/
 
                 var host = c.Host(new Uri("rabbitmq://localhost"), h =>
                 {
@@ -37,9 +40,24 @@ namespace MassTransit.EventStoreIntegration.Sample
                 });
 
                 var machine = new SampleStateMachine();
-                c.ReceiveEndpoint(host, "essaga_test", ep => ep.StateMachineSaga(machine, repository));
+                c.ReceiveEndpoint(host, "essaga_test", ep => 
+				{
+					ep.UseInMemoryOutbox();
+					ep.UseConcurrencyLimit(1);
+					ep.PrefetchCount = 1;
+					ep.StateMachineSaga(machine,repository);
+				});
             });
-        }
+
+			var auditStreamName = ConfigurationManager.AppSettings["auditStreamName"];
+
+			if (!string.IsNullOrEmpty(auditStreamName))
+			{
+				_auditStore = new EventStoreMessageAudit(_connection,auditStreamName);
+				_bus.ConnectSendAuditObservers(_auditStore);
+				_bus.ConnectConsumeAuditObserver(_auditStore);
+			}
+		}
 
         public async Task Execute()
         {

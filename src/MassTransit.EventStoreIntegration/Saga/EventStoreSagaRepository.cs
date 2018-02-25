@@ -13,7 +13,7 @@ namespace MassTransit.EventStoreIntegration.Saga
         IRetrieveSagaFromRepository<TSaga>
         where TSaga : class, IEventSourcedSaga
     {
-        static readonly ILog Log = Logger.Get<EventStoreSagaRepository<TSaga>>();
+        static readonly ILog _logger = Logger.Get<EventStoreSagaRepository<TSaga>>();
         readonly IEventStoreConnection _connection;
 
         public EventStoreSagaRepository(IEventStoreConnection connection)
@@ -21,13 +21,13 @@ namespace MassTransit.EventStoreIntegration.Saga
             _connection = connection;
             if (TypeMapping.GetTypeName(typeof(EventSourcedSagaInstance.SagaInstanceTransitioned)).Contains("+"))
                 TypeMapping.Add<EventSourcedSagaInstance.SagaInstanceTransitioned>("SagaInstanceTransitioned");
-        }
+		}
 
         public async Task<TSaga> GetSaga(Guid correlationId)
         {
             var streamName = StreamName(correlationId);
             var data = await _connection.ReadEvents(streamName, 512, typeof(TSaga).Assembly);
-            if (data == null) return null;
+			if (data == null) return null;
 
             var saga = SagaFactory();
             saga.Initialize(data.Events);
@@ -45,11 +45,13 @@ namespace MassTransit.EventStoreIntegration.Saga
             if (!context.CorrelationId.HasValue)
                 throw new SagaException("The CorrelationId was not specified", typeof(TSaga), typeof(T));
 
-            var sagaId = context.CorrelationId.Value;
+			_logger.Debug($"SAGA: Send {context.Message.GetType().FullName}");
+
+			var sagaId = context.CorrelationId.Value;
             TSaga instance;
 
-                if (policy.PreInsertInstance(context, out instance))
-                    await PreInsertSagaInstance<T>(instance).ConfigureAwait(false);
+            if (policy.PreInsertInstance(context, out instance))
+                await PreInsertSagaInstance<T>(instance).ConfigureAwait(false);
 
             if (instance == null)
                 instance = await GetSaga(sagaId);
@@ -68,7 +70,7 @@ namespace MassTransit.EventStoreIntegration.Saga
         public Task SendQuery<T>(SagaQueryConsumeContext<TSaga, T> context, ISagaPolicy<TSaga, T> policy,
             IPipe<SagaConsumeContext<TSaga, T>> next) where T : class
         {
-            throw new NotImplementedByDesignException("Redis saga repository does not support queries");
+            throw new NotImplementedByDesignException("EventStore saga repository does not support queries");
         }
 
         public void Probe(ProbeContext context)
@@ -86,8 +88,8 @@ namespace MassTransit.EventStoreIntegration.Saga
         {
             try
             {
-                if (Log.IsDebugEnabled)
-                    Log.DebugFormat("SAGA:{0}:{1} Used {2}", TypeMetadataCache<TSaga>.ShortName,
+                if (_logger.IsDebugEnabled)
+                    _logger.DebugFormat("SAGA: {0}:{1} Used {2}", TypeMetadataCache<TSaga>.ShortName,
                         instance.CorrelationId, TypeMetadataCache<T>.ShortName);
 
                 var sagaConsumeContext = new EventStoreSagaConsumeContext<TSaga, T>(_connection, context, instance);
@@ -96,7 +98,7 @@ namespace MassTransit.EventStoreIntegration.Saga
 
                 if (!sagaConsumeContext.IsCompleted)
                     await _connection.SaveEvents(instance.StreamName, instance.GetChanges(), instance.ExpectedVersion);
-            }
+			}
             catch (SagaException)
             {
                 throw;
@@ -113,16 +115,16 @@ namespace MassTransit.EventStoreIntegration.Saga
             {
                 await _connection.SaveEvents(instance.StreamName, instance.GetChanges(), instance.ExpectedVersion);
 
-                if (Log.IsDebugEnabled)
-                    Log.DebugFormat("SAGA:{0}:{1} Insert {2}", TypeMetadataCache<TSaga>.ShortName,
+                if (_logger.IsDebugEnabled)
+                    _logger.DebugFormat("SAGA: {0}:{1} Insert {2}", TypeMetadataCache<TSaga>.ShortName,
                         instance.CorrelationId,
                         TypeMetadataCache<T>.ShortName);
                 return true;
             }
             catch (Exception ex)
             {
-                if (Log.IsDebugEnabled)
-                    Log.DebugFormat("SAGA:{0}:{1} Dupe {2} - {3}", TypeMetadataCache<TSaga>.ShortName,
+                if (_logger.IsDebugEnabled)
+                    _logger.DebugFormat("SAGA: {0}:{1} Dupe {2} - {3}", TypeMetadataCache<TSaga>.ShortName,
                         instance.CorrelationId,
                         TypeMetadataCache<T>.ShortName, ex.Message);
 
@@ -163,8 +165,8 @@ namespace MassTransit.EventStoreIntegration.Saga
             {
                 var instance = context.Saga;
 
-                if (Log.IsDebugEnabled)
-                    Log.DebugFormat("SAGA:{0}:{1} Added {2}", TypeMetadataCache<TSaga>.ShortName,
+                if (_logger.IsDebugEnabled)
+                    _logger.DebugFormat("SAGA: {0}:{1} Added {2}", TypeMetadataCache<TSaga>.ShortName,
                         instance.CorrelationId,
                         TypeMetadataCache<TMessage>.ShortName);
 
@@ -173,9 +175,9 @@ namespace MassTransit.EventStoreIntegration.Saga
 
                 await _next.Send(proxy).ConfigureAwait(false);
 
-                if (!proxy.IsCompleted)
-                    await _connection.SaveEvents(instance.StreamName, instance.GetChanges(), instance.ExpectedVersion);
-            }
+				if (!proxy.IsCompleted)
+					await _connection.SaveEvents(instance.StreamName,instance.GetChanges(),instance.ExpectedVersion);
+			}
         }
     }
 }

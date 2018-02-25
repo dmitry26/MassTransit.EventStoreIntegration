@@ -68,7 +68,7 @@ namespace MassTransit.EventStoreIntegration.Tests
             events.Events.ElementAt(1).ShouldBeOfType<ProcessStarted>();
         }
 
-//        [Fact]
+        [Fact]
         public async Task Should_assign_value()
         {
             await _repository.ShouldContainSaga(_sagaId, TestTimeout);
@@ -78,7 +78,7 @@ namespace MassTransit.EventStoreIntegration.Tests
 
             var streamName = StreamName<Instance>(_sagaId);
             var events = await _fixture.Connection.ReadEvents(streamName, 512, Assembly.GetExecutingAssembly());
-            events.LastVersion.ShouldBe(2);
+            events.LastVersion.ShouldBe(3);
             events.Events.ElementAt(1).ShouldBeOfType<ProcessStarted>();
         }
 
