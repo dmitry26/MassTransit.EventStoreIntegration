@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.EventStoreIntegration", "src\MassTransit.EventStoreIntegration\MassTransit.EventStoreIntegration.csproj", "{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.EventStoreIntegration.Sample", "src\MassTransit.EventStoreIntegration.Sample\MassTransit.EventStoreIntegration.Sample.csproj", "{6BE9C3BF-5BD3-4108-A1E6-B47931E4FF08}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA} = {EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.EventStoreIntegration.Tests", "src\MassTransit.EventStoreIntegration.Tests\MassTransit.EventStoreIntegration.Tests.csproj", "{BE456C59-DA5F-4E67-BB55-0D88C0C800FA}"
 EndProject

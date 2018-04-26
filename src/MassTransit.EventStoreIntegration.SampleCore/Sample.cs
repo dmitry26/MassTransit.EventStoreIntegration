@@ -14,17 +14,17 @@ using Serilog;
 
 namespace MassTransit.EventStoreIntegration.Sample
 {
-    public class Sample
-    {
-        private IBusControl _bus;
-        private IEventStoreConnection _connection;
+	public class Sample
+	{
+		private IBusControl _bus;
+		private IEventStoreConnection _connection;
 		private EventStoreMessageAudit _auditStore;
 		private AuditStoreSettings _auditSettings;
 
 		private static readonly Serilog.ILogger _logger = Log.ForContext(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 		public Sample()
-        {
+		{
 			var appSettings = ConfigExts.GetAppSettings();
 
 			Log.Logger = new LoggerConfiguration()
@@ -38,26 +38,26 @@ namespace MassTransit.EventStoreIntegration.Sample
 
 			_connection = EventStoreConnection.Create(conStr,ConnectionSettings.Create().UseSerilog());
 
-            var repository = new EventStoreSagaRepository<SampleInstance>(_connection);
-            _bus = Bus.Factory.CreateUsingRabbitMq(c =>
-            {
-                c.UseSerilog();
+			var repository = new EventStoreSagaRepository<SampleInstance>(_connection);
+			_bus = Bus.Factory.CreateUsingRabbitMq(c =>
+			{
+				c.UseSerilog();
 
-                var host = c.Host(new Uri("rabbitmq://localhost"), h =>
-                {
-                    h.Username("guest");
-                    h.Password("guest");
-                });
-				
-                var machine = new SampleStateMachine(appSettings.GetValue("DeleteCompleted",true));
+				var host = c.Host(new Uri("rabbitmq://localhost"),h =>
+			   {
+				   h.Username("guest");
+				   h.Password("guest");
+			   });
 
-                c.ReceiveEndpoint(host, "essaga_test", ep =>
-				{
-					ep.UseInMemoryOutbox();
-					ep.UseConcurrencyLimit(1);
-					ep.PrefetchCount = 1;
-					ep.StateMachineSaga(machine,repository);
-				});
+				var machine = new SampleStateMachine(appSettings.GetValue("DeleteCompleted",true));
+
+				c.ReceiveEndpoint(host,"essaga_test",ep =>
+			  {
+				  ep.UseInMemoryOutbox();
+				  ep.UseConcurrencyLimit(1);
+				  ep.PrefetchCount = 1;
+				  ep.StateMachineSaga(machine,repository);
+			  });
 			});
 
 			_auditSettings = appSettings.GetSettings<AuditStoreSettings>("AuditStore");
@@ -70,29 +70,29 @@ namespace MassTransit.EventStoreIntegration.Sample
 			}
 		}
 
-        public async Task Execute()
-        {
-            await _connection.ConnectAsync();
+		public async Task Execute()
+		{
+			await _connection.ConnectAsync();
 
-			if (_auditSettings != null &&_auditSettings.MaxAgeSec > 0)
+			if (_auditSettings != null && _auditSettings.MaxAgeSec > 0)
 				await _connection.SetEventMaxAgeIfNull(_auditSettings.StreamName,TimeSpan.FromSeconds(_auditSettings.MaxAgeSec));
 
 			await _bus.StartAsync();
 
-            var sagaId = Guid.NewGuid();
+			var sagaId = Guid.NewGuid();
 
 			await _bus.Publish<ProcessStarted>(new ProcessStarted { CorrelationId = sagaId,OrderId = "321" });
 
 			await _bus.Publish(new OrderStatusChanged { CorrelationId = sagaId,OrderStatus = "Pending" });
 
 			await _bus.Publish(new ProcessStopped { CorrelationId = sagaId });
-        }
+		}
 
-        public void Stop()
-        {
-            _bus.Stop();
-            _connection.Dispose();
-        }
+		public void Stop()
+		{
+			_bus.Stop();
+			_connection.Dispose();
+		}
 
 		private class AuditStoreSettings
 		{
