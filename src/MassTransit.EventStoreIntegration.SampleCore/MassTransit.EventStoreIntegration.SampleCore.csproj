@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.Automatonymous" Version="5.0.1" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="5.0.1" />
-    <PackageReference Include="MassTransit.SerilogIntegration" Version="5.0.1" />
+    <PackageReference Include="MassTransit.Automatonymous" Version="5.0.2" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="5.0.2" />
+    <PackageReference Include="MassTransit.SerilogIntegration" Version="5.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.1" />

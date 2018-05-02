@@ -38,20 +38,20 @@
     <Reference Include="Automatonymous, Version=4.0.1.94, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Automatonymous.4.0.1\lib\net452\Automatonymous.dll</HintPath>
     </Reference>
-    <Reference Include="EventStore.ClientAPI, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\EventStore.Client.4.1.0\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    <Reference Include="EventStore.ClientAPI, Version=4.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EventStore.Client.4.1.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
     </Reference>
-    <Reference Include="EventStore.ClientAPI.Embedded, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\EventStore.Client.Embedded.4.1.0\lib\net40\EventStore.ClientAPI.Embedded.dll</HintPath>
+    <Reference Include="EventStore.ClientAPI.Embedded, Version=4.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EventStore.Client.Embedded.4.1.1\lib\net40\EventStore.ClientAPI.Embedded.dll</HintPath>
     </Reference>
     <Reference Include="GreenPipes, Version=2.0.0.103, Culture=neutral, PublicKeyToken=b800c4cfcdeea87b, processorArchitecture=MSIL">
       <HintPath>..\..\packages\GreenPipes.2.0.0\lib\net452\GreenPipes.dll</HintPath>
     </Reference>
-    <Reference Include="MassTransit, Version=5.0.1.1496, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MassTransit.5.0.1\lib\net452\MassTransit.dll</HintPath>
+    <Reference Include="MassTransit, Version=5.0.2.1503, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MassTransit.5.0.2\lib\net452\MassTransit.dll</HintPath>
     </Reference>
-    <Reference Include="MassTransit.AutomatonymousIntegration, Version=5.0.1.1496, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MassTransit.Automatonymous.5.0.1\lib\net452\MassTransit.AutomatonymousIntegration.dll</HintPath>
+    <Reference Include="MassTransit.AutomatonymousIntegration, Version=5.0.2.1503, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MassTransit.Automatonymous.5.0.2\lib\net452\MassTransit.AutomatonymousIntegration.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.2.0.0\lib\net461\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
@@ -94,9 +94,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SolutionAssemblyInfo.cs">
-      <Link>Properties\SolutionAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="EventStoreFixture.cs" />
     <Compile Include="ExtensionMethodsForSagas.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -110,24 +107,24 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <Analyzer Include="..\..\packages\xunit.analyzers.0.8.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\MassTransit.EventStoreIntegration\MassTransit.EventStoreIntegration.csproj">
       <Project>{eba69aa8-8a8d-4af8-baa9-5cc8465d07ba}</Project>
       <Name>MassTransit.EventStoreIntegration</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\..\packages\xunit.analyzers.0.8.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\packages\EventStore.Client.Embedded.4.1.0\build\EventStore.Client.Embedded.targets" Condition="Exists('..\..\packages\EventStore.Client.Embedded.4.1.0\build\EventStore.Client.Embedded.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\EventStore.Client.Embedded.4.1.0\build\EventStore.Client.Embedded.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\EventStore.Client.Embedded.4.1.0\build\EventStore.Client.Embedded.targets'))" />
     <Error Condition="!Exists('..\..\packages\xunit.core.2.3.1\build\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.core.2.3.1\build\xunit.core.props'))" />
     <Error Condition="!Exists('..\..\packages\xunit.core.2.3.1\build\xunit.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.core.2.3.1\build\xunit.core.targets'))" />
     <Error Condition="!Exists('..\..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props'))" />
+    <Error Condition="!Exists('..\..\packages\EventStore.Client.Embedded.4.1.1\build\EventStore.Client.Embedded.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\EventStore.Client.Embedded.4.1.1\build\EventStore.Client.Embedded.targets'))" />
   </Target>
   <Import Project="..\..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />
+  <Import Project="..\..\packages\EventStore.Client.Embedded.4.1.1\build\EventStore.Client.Embedded.targets" Condition="Exists('..\..\packages\EventStore.Client.Embedded.4.1.1\build\EventStore.Client.Embedded.targets')" />
 </Project>
