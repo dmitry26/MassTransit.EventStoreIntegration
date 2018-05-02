@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Threading.Tasks;
 using Automatonymous;
 using Dmo.NetCore.Hosting;
+using Dmo.MassTransit;
 using EventStore.ClientAPI;
 using EventStore.SerilogAdapter;
 using GreenPipes;
@@ -39,25 +40,20 @@ namespace MassTransit.EventStoreIntegration.Sample
 			_connection = EventStoreConnection.Create(conStr,ConnectionSettings.Create().UseSerilog());
 
 			var repository = new EventStoreSagaRepository<SampleInstance>(_connection);
+
 			_bus = Bus.Factory.CreateUsingRabbitMq(c =>
 			{
 				c.UseSerilog();
-
-				var host = c.Host(new Uri("rabbitmq://localhost"),h =>
-			   {
-				   h.Username("guest");
-				   h.Password("guest");
-			   });
-
+				var host = c.CreateHost(appSettings.GetSettings<RabbitMqOptions>("RabbitMq"));
 				var machine = new SampleStateMachine(appSettings.GetValue("DeleteCompleted",true));
 
 				c.ReceiveEndpoint(host,"essaga_test",ep =>
-			  {
-				  ep.UseInMemoryOutbox();
-				  ep.UseConcurrencyLimit(1);
-				  ep.PrefetchCount = 1;
-				  ep.StateMachineSaga(machine,repository);
-			  });
+				{
+					ep.UseInMemoryOutbox();
+					ep.UseConcurrencyLimit(1);
+					ep.PrefetchCount = 1;
+					ep.StateMachineSaga(machine,repository);
+				});
 			});
 
 			_auditSettings = appSettings.GetSettings<AuditStoreSettings>("AuditStore");
