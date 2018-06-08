@@ -12,6 +12,7 @@ packages
 .fake
 
 src/**/logs
+src/**/appsettings.Development.json
 
 bin
 obj

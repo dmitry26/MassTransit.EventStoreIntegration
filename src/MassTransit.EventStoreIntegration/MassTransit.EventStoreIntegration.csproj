@@ -1,13 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <AssemblyName>MassTransit.EventStoreIntegration</AssemblyName>
     <RootNamespace>MassTransit.EventStoreIntegration</RootNamespace>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Authors>Alexey Zimarev</Authors>
+    <PackageLicenseUrl>https://github.com/alexeyzimarev/MassTransit.EventStoreIntegration/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/alexeyzimarev/MassTransit.EventStoreIntegration</PackageProjectUrl>
+    <Description>Event-sourced sagas for MassTransit using EventStore. Also, the audit store</Description>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <PackageReference Include="EventStore.Client" Version="4.1.1" />
   </ItemGroup>
 
@@ -16,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit" Version="5.0.2" />
+    <PackageReference Include="MassTransit" Version="5.1.2" />
   </ItemGroup>
 
 </Project>

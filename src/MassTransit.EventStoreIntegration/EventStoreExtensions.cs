@@ -4,16 +4,15 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.Exceptions;
 using MassTransit.Logging;
 
 namespace MassTransit.EventStoreIntegration
 {
     public static class EventStoreExtensions
     {
-		static readonly ILog _logger = Logger.Get(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        static readonly ILog _logger = Logger.Get(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-		public static async Task<long> SaveEvents(this IEventStoreConnection connection,
+        public static async Task<long> SaveEvents(this IEventStoreConnection connection,
             string streamIdentifier,
             IEnumerable<object> events,
             long expectedVersion = ExpectedVersion.Any,
@@ -29,8 +28,8 @@ namespace MassTransit.EventStoreIntegration
                         JsonSerialisation.Serialize(metadata)));
 
             var result = await connection.AppendToStreamAsync(streamIdentifier, expectedVersion, esEvents);
-			_logger.Debug($"Saved events to store: stream = {streamIdentifier}, expectedVersion = {expectedVersion}, NextExpectedVersion = {result.NextExpectedVersion}");
-			return result.NextExpectedVersion;
+            _logger.Debug($"Saved events to store: stream = {streamIdentifier}, expectedVersion = {expectedVersion}, NextExpectedVersion = {result.NextExpectedVersion}");
+            return result.NextExpectedVersion;
         }
 
         public static async Task<EventsData> ReadEvents(this IEventStoreConnection connection,
@@ -38,11 +37,11 @@ namespace MassTransit.EventStoreIntegration
         {
             var slice = await
                 connection.ReadStreamEventsForwardAsync(streamName, StreamPosition.Start, sliceSize, false);
-			if (slice.Status == SliceReadStatus.StreamDeleted || slice.Status == SliceReadStatus.StreamNotFound)
-			{
-				_logger.Debug($"Failed to retrieve events: stream = {streamName}, status = {slice.Status}");
-				return null;
-			}
+            if (slice.Status == SliceReadStatus.StreamDeleted || slice.Status == SliceReadStatus.StreamNotFound)
+            {
+                _logger.Debug($"Failed to retrieve events: stream = {streamName}, status = {slice.Status}");
+                return null;
+            }
 
             var assemblyName = assembly.GetName().Name;
             var lastEventNumber = slice.LastEventNumber;
@@ -59,29 +58,5 @@ namespace MassTransit.EventStoreIntegration
             var tuple = new EventsData(events, lastEventNumber);
             return tuple;
         }
-
-		public static async Task SetEventMaxAgeIfNull(this IEventStoreConnection connection,string streamName,TimeSpan maxAge)
-		{			
-			for (int i = 0; i < 3; ++i)
-			{
-				var readRes = await connection.GetStreamMetadataAsync(streamName);
-
-				if (readRes.IsStreamDeleted || readRes.StreamMetadata.MaxAge != null)
-					return;				
-				
-				var metadata = StreamMetadata.Create(maxAge: maxAge);
-
-				try
-				{
-					await connection.SetStreamMetadataAsync(streamName,readRes.MetastreamVersion,metadata);
-					return;
-				}
-				catch (WrongExpectedVersionException)
-				{
-				}
-
-				await Task.Delay((i + 1) * 100);
-			}
-		}
-	}
+    }
 }

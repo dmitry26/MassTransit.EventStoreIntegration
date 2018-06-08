@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MassTransit.EventStoreIntegration.Sample": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

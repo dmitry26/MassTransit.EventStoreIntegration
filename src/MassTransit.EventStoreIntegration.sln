@@ -3,18 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.EventStoreIntegration.SampleCore", "src\MassTransit.EventStoreIntegration.SampleCore\MassTransit.EventStoreIntegration.SampleCore.csproj", "{68935945-1CCD-44B1-85A1-50E0894B69ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.EventStoreIntegration.Sample", "MassTransit.EventStoreIntegration.Sample\MassTransit.EventStoreIntegration.Sample.csproj", "{68935945-1CCD-44B1-85A1-50E0894B69ED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.SerilogAdapter", "src\EventStore.SerilogAdapter\EventStore.SerilogAdapter.csproj", "{017A0EF0-9DF7-4B68-81D5-1DE65E1B5268}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.SerilogAdapter", "EventStore.SerilogAdapter\EventStore.SerilogAdapter.csproj", "{017A0EF0-9DF7-4B68-81D5-1DE65E1B5268}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.EventStoreIntegration", "src\MassTransit.EventStoreIntegration\MassTransit.EventStoreIntegration.csproj", "{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.EventStoreIntegration", "MassTransit.EventStoreIntegration\MassTransit.EventStoreIntegration.csproj", "{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.EventStoreIntegration.Sample", "src\MassTransit.EventStoreIntegration.Sample\MassTransit.EventStoreIntegration.Sample.csproj", "{6BE9C3BF-5BD3-4108-A1E6-B47931E4FF08}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA} = {EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.EventStoreIntegration.Tests", "src\MassTransit.EventStoreIntegration.Tests\MassTransit.EventStoreIntegration.Tests.csproj", "{BE456C59-DA5F-4E67-BB55-0D88C0C800FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassTransit.EventStoreIntegration.Tests", "MassTransit.EventStoreIntegration.Tests\MassTransit.EventStoreIntegration.Tests.csproj", "{BE456C59-DA5F-4E67-BB55-0D88C0C800FA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA} = {EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}
 	EndProjectSection
@@ -37,10 +32,6 @@ Global
 		{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBA69AA8-8A8D-4AF8-BAA9-5CC8465D07BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BE9C3BF-5BD3-4108-A1E6-B47931E4FF08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BE9C3BF-5BD3-4108-A1E6-B47931E4FF08}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BE9C3BF-5BD3-4108-A1E6-B47931E4FF08}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BE9C3BF-5BD3-4108-A1E6-B47931E4FF08}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE456C59-DA5F-4E67-BB55-0D88C0C800FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE456C59-DA5F-4E67-BB55-0D88C0C800FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE456C59-DA5F-4E67-BB55-0D88C0C800FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
