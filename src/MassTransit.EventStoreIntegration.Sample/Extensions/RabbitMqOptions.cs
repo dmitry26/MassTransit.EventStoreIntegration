@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Dmo.MassTransit
+namespace Dmo.Extensions.MassTransit
 {
-	public class RabbitMqOptions
+	public class RabbitMqHostOptions
 	{
 		public string Username { get; set; }
 

@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Automatonymous;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace MassTransit.EventStoreIntegration.Sample
 {
 	public class SampleStateMachine : MassTransitStateMachine<SampleInstance>
 	{
-		private static readonly ILogger _logger = Log.ForContext(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private readonly ILogger _logger;
 
-		public SampleStateMachine(bool allowSetCompleted = true)
+		public SampleStateMachine(ILogger<SampleStateMachine> logger,bool allowSetCompleted = true)
 		{
+			_logger = logger;
+
 			InstanceState(x => x.CurrentState);
 
 			Event(() => Started,x => x.CorrelateById(e => e.Message.CorrelationId));
@@ -21,14 +23,14 @@ namespace MassTransit.EventStoreIntegration.Sample
 				When(Started)
 					.Then(c =>
 					{
-						_logger.Debug("STATE: Event = {name}, {@data}, Current state: {@instance}",c.Event.Name,c.Data,c.Instance);
+						_logger.LogDebug("STATE: Event = {name}, {@data}, Current state: {@instance}",c.Event.Name,c.Data,c.Instance);
 						c.Instance.Apply(c.Data);
 					})
 					.TransitionTo(Running));
 
 			this.OnUnhandledEvent((ctx) =>
 			{
-				_logger.Debug($"STATE: Unhandled Event, Current state: {ctx.Instance.CurrentState ?? "null"}, Event = {ctx.Event.Name}");
+				_logger.LogDebug($"STATE: Unhandled Event, Current state: {ctx.Instance.CurrentState ?? "null"}, Event = {ctx.Event.Name}");
 				return Task.CompletedTask;
 			});
 
@@ -36,17 +38,17 @@ namespace MassTransit.EventStoreIntegration.Sample
 				When(StatusChanged)
 					.Then(c =>
 					{
-						_logger.Debug("STATE: Event = {name}, {@data}, Current state: {@instance}",c.Event.Name,c.Data,c.Instance);
+						_logger.LogDebug("STATE: Event = {name}, {@data}, Current state: {@instance}",c.Event.Name,c.Data,c.Instance);
 						c.Instance.Apply(c.Data);
 					}),
 				When(Stopped)
-					.Then(c => _logger.Debug("STATE: Event = {name}, {@data}, Current state: {@instance}",c.Event.Name,c.Data,c.Instance))
+					.Then(c => _logger.LogDebug("STATE: Event = {name}, {@data}, Current state: {@instance}",c.Event.Name,c.Data,c.Instance))
 					.TransitionTo(Done)
 					.Finalize());
 
 			BeforeEnterAny(x => x.Then(c =>
 			{
-				_logger.Debug("STATE: Event = {name}, Current state: {@instance}",c.Event.Name,c.Instance);
+				_logger.LogDebug("STATE: Event = {name}, Current state: {@instance}",c.Event.Name,c.Instance);
 			}));
 
 			if (allowSetCompleted)

@@ -4,11 +4,11 @@ using System.Text;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
 
-namespace Dmo.MassTransit
+namespace Dmo.Extensions.MassTransit
 {
-    public static class MassTransitExts
-    {
-		public static IRabbitMqHost CreateHost(this IRabbitMqBusFactoryConfigurator cfg,RabbitMqOptions opts)
+	public static class MassTransitExts
+	{
+		public static IRabbitMqHost CreateHost(this IRabbitMqBusFactoryConfigurator cfg,RabbitMqHostOptions opts)
 		{
 			string host = opts.Host ?? "[::1]";
 			ushort port = (ushort)(opts.Port ?? 5672);
@@ -30,5 +30,5 @@ namespace Dmo.MassTransit
 				}
 			});
 		}
-    }
+	}
 }
