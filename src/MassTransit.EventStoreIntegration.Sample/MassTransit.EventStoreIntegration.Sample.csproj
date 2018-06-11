@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventStore.SerilogAdapter\EventStore.SerilogAdapter.csproj" />
+    <ProjectReference Include="..\EventStore.Extensions.Logging\EventStore.Extensions.Logging.csproj" />
     <ProjectReference Include="..\MassTransit.EventStoreIntegration\MassTransit.EventStoreIntegration.csproj" />
   </ItemGroup>
 

@@ -1,21 +1,18 @@
 ﻿using System;
+using Microsoft.Extensions.Logging;
 
-namespace EventStore.SerilogAdapter
+namespace EventStore.Extensions.Logging
 {
-    /// <summary>
-    /// Adapter to use Serilog Logger in EventStore client.
-    /// </summary>
-    public class EventStoreSerilogger : ClientAPI.ILogger
+	/// <summary>
+	/// EventStore client logging adapter.
+	/// </summary>
+	public class EventStoreNetCoreLogger : ClientAPI.ILogger
 	{
-        private readonly Serilog.ILogger _seriLogger;
+        private readonly ILogger _logger;       
 
-        public EventStoreSerilogger() : this(Serilog.Log.Logger)
+        public EventStoreNetCoreLogger(ILoggerFactory loggerFactory)
         {
-        }
-
-        public EventStoreSerilogger(Serilog.ILogger seriLogger)
-        {
-            _seriLogger = seriLogger;
+			_logger = loggerFactory.CreateLogger("EventStore.ClientAPI");
         }
 
         /// <summary>
@@ -25,7 +22,7 @@ namespace EventStore.SerilogAdapter
         /// <param name="args">Arguments to be inserted into the format string.</param>
         public void Error(string format, params object[] args)
         {
-            _seriLogger.Error(format, args);
+            _logger.LogError(format, args);
         }
 
         /// <summary>
@@ -36,7 +33,7 @@ namespace EventStore.SerilogAdapter
         /// <param name="args">Arguments to be inserted into the format string.</param>
         public void Error(Exception ex, string format, params object[] args)
         {
-            _seriLogger.Error(ex, format, args);
+            _logger.LogError(ex, format, args);
         }
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace EventStore.SerilogAdapter
         /// <param name="args">Arguments to be inserted into the format string.</param>
         public void Info(string format, params object[] args)
         {
-            _seriLogger.Information(format, args);
+            _logger.LogInformation(format, args);
         }
 
         /// <summary>
@@ -57,7 +54,7 @@ namespace EventStore.SerilogAdapter
         /// <param name="args">Arguments to be inserted into the format string.</param>
         public void Info(Exception ex, string format, params object[] args)
         {
-            _seriLogger.Information(ex, format, args);
+            _logger.LogInformation(ex, format, args);
         }
 
         /// <summary>
@@ -67,7 +64,7 @@ namespace EventStore.SerilogAdapter
         /// <param name="args">Arguments to be inserted into the format string.</param>
         public void Debug(string format, params object[] args)
         {
-            _seriLogger.Debug(format, args);
+            _logger.LogDebug(format, args);
         }
 
         /// <summary>
@@ -78,7 +75,7 @@ namespace EventStore.SerilogAdapter
         /// <param name="args">Arguments to be inserted into the format string.</param>
         public void Debug(Exception ex, string format, params object[] args)
         {
-            _seriLogger.Debug(ex, format, args);
+            _logger.LogDebug(ex, format, args);
         }
     }
 }

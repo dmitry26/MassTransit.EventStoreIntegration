@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Dmo.Extensions.EventStore;
 using Dmo.Extensions.MassTransit;
 using EventStore.ClientAPI;
-using EventStore.SerilogAdapter;
+using EventStore.Extensions.Logging;
 using GreenPipes;
-using MassTransit;
 using MassTransit.EventStoreIntegration.Audit;
 using MassTransit.EventStoreIntegration.Saga;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+
 
 namespace MassTransit.EventStoreIntegration.Sample
 {
@@ -46,7 +46,10 @@ namespace MassTransit.EventStoreIntegration.Sample
 			services.AddSingleton(svcProv =>
 			{
 				var conStr = appConfig.GetConnectionString("EvtStoreConnection");
-				return EventStoreConnection.Create(conStr,ConnectionSettings.Create().UseSerilog());
+				return EventStoreConnection.Create(conStr,ConnectionSettings.Create()
+					.UseNetCoreLogger(svcProv.GetService<ILoggerFactory>())
+				//.EnableVerboseLogging()
+				);
 			});
 
 			services.AddMassTransit(cfg =>
