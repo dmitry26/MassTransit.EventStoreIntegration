@@ -21,13 +21,13 @@ namespace MassTransit.EventStoreIntegration.Saga
             _connection = connection;
             if (TypeMapping.GetTypeName(typeof(EventSourcedSagaInstance.SagaInstanceTransitioned)).Contains("+"))
                 TypeMapping.Add<EventSourcedSagaInstance.SagaInstanceTransitioned>("SagaInstanceTransitioned");
-		}
+        }
 
         public async Task<TSaga> GetSaga(Guid correlationId)
         {
             var streamName = StreamName(correlationId);
             var data = await _connection.ReadEvents(streamName, 512, typeof(TSaga).Assembly);
-			if (data == null) return null;
+            if (data == null) return null;
 
             var saga = SagaFactory();
             saga.Initialize(data.Events);
@@ -45,9 +45,9 @@ namespace MassTransit.EventStoreIntegration.Saga
             if (!context.CorrelationId.HasValue)
                 throw new SagaException("The CorrelationId was not specified", typeof(TSaga), typeof(T));
 
-			_logger.Debug($"SAGA: Send {context.Message.GetType().FullName}");
+            _logger.Debug($"SAGA: Send {context.Message.GetType().FullName}");
 
-			var sagaId = context.CorrelationId.Value;
+            var sagaId = context.CorrelationId.Value;
             TSaga instance;
 
             if (policy.PreInsertInstance(context, out instance))
@@ -98,7 +98,11 @@ namespace MassTransit.EventStoreIntegration.Saga
 
                 if (!sagaConsumeContext.IsCompleted)
                     await _connection.SaveEvents(instance.StreamName, instance.GetChanges(), instance.ExpectedVersion);
-			}
+            }
+            catch (EventStoreSagaConcurrencyException)
+            {
+                throw;
+            }
             catch (SagaException)
             {
                 throw;
@@ -175,9 +179,9 @@ namespace MassTransit.EventStoreIntegration.Saga
 
                 await _next.Send(proxy).ConfigureAwait(false);
 
-				if (!proxy.IsCompleted)
-					await _connection.SaveEvents(instance.StreamName,instance.GetChanges(),instance.ExpectedVersion);
-			}
+                if (!proxy.IsCompleted)
+                    await _connection.SaveEvents(instance.StreamName,instance.GetChanges(),instance.ExpectedVersion);
+            }
         }
     }
 }

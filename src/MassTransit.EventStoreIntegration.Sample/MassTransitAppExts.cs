@@ -16,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
-
 namespace MassTransit.EventStoreIntegration.Sample
 {
 	public static class MassTransitAppExts
@@ -48,7 +47,7 @@ namespace MassTransit.EventStoreIntegration.Sample
 				var conStr = appConfig.GetConnectionString("EvtStoreConnection");
 				return EventStoreConnection.Create(conStr,ConnectionSettings.Create()
 					.UseNetCoreLogger(svcProv.GetService<ILoggerFactory>())
-				//.EnableVerboseLogging()
+					//.EnableVerboseLogging()
 				);
 			});
 
@@ -75,6 +74,11 @@ namespace MassTransit.EventStoreIntegration.Sample
 						e.UseInMemoryOutbox();
 						e.PrefetchCount = 1;
 						e.UseConcurrencyLimit(1);
+						e.UseRetry(x =>
+						{
+							x.Handle<EventStoreSagaConcurrencyException>();
+							x.Interval(5,TimeSpan.FromMilliseconds(100));
+						});
 						e.StateMachineSaga(machine,repository);
 					});
 

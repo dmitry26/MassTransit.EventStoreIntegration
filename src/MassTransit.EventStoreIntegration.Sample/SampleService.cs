@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Dmo.Extensions.MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -22,17 +23,32 @@ namespace MassTransit.EventStoreIntegration.Sample
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("MyService is starting.");
+			_logger.LogInformation("SampleService is starting.");
 
 			var sagaId = Guid.NewGuid();
 
 			await _bus.Publish(new ProcessStarted { CorrelationId = sagaId,OrderId = "321" });
 
-			await _bus.Publish(new OrderStatusChanged { CorrelationId = sagaId,OrderStatus = "Pending" });
+			var receivedOrderUpdated = _bus.SubscribeHandler<OrderStatusUpdated>(TimeSpan.FromSeconds(10));
 
-			await _bus.Publish(new ProcessStopped { CorrelationId = sagaId });
+			await _bus.Publish(new OrderStatusChanged { CorrelationId = sagaId,OrderStatus = "Pending" },ctx => ctx.ResponseAddress = _bus.Address);
 
-			_logger.LogInformation("MyService is stopping.");
+			try
+			{
+				await receivedOrderUpdated;
+
+				await _bus.Publish(new ProcessStopped { CorrelationId = sagaId });
+
+				_logger.LogInformation("Published all messages.");
+			}
+			catch (TaskCanceledException x)
+			{
+				_logger.LogDebug(x,"Didn't receive a response.");
+			}
+			catch (Exception x)
+			{
+				_logger.LogDebug(x,"");
+			}
 		}
 	}
 }

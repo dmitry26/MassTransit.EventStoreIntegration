@@ -18,4 +18,9 @@ namespace MassTransit.EventStoreIntegration.Sample
         public Guid CorrelationId { get; set; }
         public string OrderStatus { get; set; }
     }
+
+    public class OrderStatusUpdated : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; set; }
+    }
 }

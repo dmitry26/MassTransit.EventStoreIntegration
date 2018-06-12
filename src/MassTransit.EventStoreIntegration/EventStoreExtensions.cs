@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.Exceptions;
+using MassTransit.EventStoreIntegration.Saga;
 using MassTransit.Logging;
 
 namespace MassTransit.EventStoreIntegration
@@ -27,10 +29,18 @@ namespace MassTransit.EventStoreIntegration
                         JsonSerialisation.Serialize(x),
                         JsonSerialisation.Serialize(metadata)));
 
-            var result = await connection.AppendToStreamAsync(streamIdentifier, expectedVersion, esEvents);
-            _logger.Debug($"Saved events to store: stream = {streamIdentifier}, expectedVersion = {expectedVersion}, NextExpectedVersion = {result.NextExpectedVersion}");
-            return result.NextExpectedVersion;
-        }
+			try
+			{
+				var result = await connection.AppendToStreamAsync(streamIdentifier,expectedVersion,esEvents);
+				_logger.Debug($"Saved events to store: stream = {streamIdentifier}, expectedVersion = {expectedVersion}, NextExpectedVersion = {result.NextExpectedVersion}");
+				return result.NextExpectedVersion;
+			}
+			catch (WrongExpectedVersionException x)
+			{
+				_logger.Debug(x.Message);
+				throw new EventStoreSagaConcurrencyException(x.Message);
+			}
+		}
 
         public static async Task<EventsData> ReadEvents(this IEventStoreConnection connection,
             string streamName, int sliceSize, Assembly assembly)
