@@ -21,12 +21,8 @@ namespace MassTransit.EventStoreIntegration.Saga
         /// <param name="event">The event type the route is for.</param>
         /// <param name="handler">The state handler that should be invoked when an event of the specified type is routed.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="event"/> or <paramref name="handler"/> is <c>null</c>.</exception>
-        public void ConfigureRoute(Type @event, Action<object> handler)
-        {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-            _handlers.Add(@event, handler);
-        }
+        public void ConfigureRoute(Type @event, Action<object> handler) =>
+            _handlers.Add(@event, handler ?? throw new ArgumentNullException(nameof(handler)));
 
         /// <summary>
         /// Adds a route for the specified event type to the specified state handler.
@@ -45,15 +41,13 @@ namespace MassTransit.EventStoreIntegration.Saga
         /// </summary>
         /// <param name="event">The event to route.</param>
         /// <exception cref="ArgumentNullException">Thrown when the <paramref name="event"/> is null.</exception>
-        public void Route(object @event)
-        {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
-            Action<object> handler;
-            if (_handlers.TryGetValue(@event.GetType(), out handler))
-            {
-                handler(@event);
-            }
-        }
+        public void Route(object @event) =>
+            GetHandler((@event ?? throw new ArgumentNullException(nameof(@event)))
+                .GetType())?.Invoke(@event);
 
+        private Action<object> GetHandler(Type type) =>
+            _handlers.TryGetValue(type?.GetMsgType(),out Action<object> handler)
+                ? handler
+                : null;
     }
 }

@@ -31,13 +31,15 @@ namespace MassTransit.EventStoreIntegration.Sample
 
 			var receivedOrderUpdated = _bus.SubscribeHandler<OrderStatusUpdated>(TimeSpan.FromSeconds(10));
 
-			await _bus.Publish(new OrderStatusChanged { CorrelationId = sagaId,OrderStatus = "Pending" },ctx => ctx.ResponseAddress = _bus.Address);
+			//await _bus.Publish(new OrderStatusChanged { CorrelationId = sagaId,OrderStatus = "Pending" },ctx => ctx.ResponseAddress = _bus.Address);
+			await _bus.Publish<OrderStatusChanged>(new { CorrelationId = sagaId,OrderStatus = "Pending" },ctx => ctx.ResponseAddress = _bus.Address);
 
 			try
 			{
 				await receivedOrderUpdated;
 
-				await _bus.Publish(new ProcessStopped { CorrelationId = sagaId });
+				//await _bus.Publish(new ProcessStopped { CorrelationId = sagaId });
+				await _bus.Publish<ProcessStopped>(new { CorrelationId = sagaId });
 
 				_logger.LogInformation("Published all messages.");
 			}

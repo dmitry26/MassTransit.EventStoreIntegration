@@ -8,15 +8,24 @@ namespace MassTransit.EventStoreIntegration.Sample
         public string OrderId { get; set; }
     }
 
-    public class ProcessStopped : CorrelatedBy<Guid>
+    /*public class ProcessStopped : CorrelatedBy<Guid>
     {
         public Guid CorrelationId { get; set; }
+    }*/
+
+    public interface ProcessStopped : CorrelatedBy<Guid>
+    {
     }
 
-    public class OrderStatusChanged : CorrelatedBy<Guid>
+    /*public class OrderStatusChanged : CorrelatedBy<Guid>
     {
         public Guid CorrelationId { get; set; }
         public string OrderStatus { get; set; }
+    }*/
+
+    public interface OrderStatusChanged : CorrelatedBy<Guid>
+    {
+        string OrderStatus { get; }
     }
 
     public class OrderStatusUpdated : CorrelatedBy<Guid>
