@@ -20,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.Automatonymous" Version="5.1.2" />
+    <PackageReference Include="MassTransit.Automatonymous" Version="5.1.4" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="5.1.2" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="5.1.2" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="5.1.4" />
     <PackageReference Include="MassTransit.SerilogIntegration" Version="5.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.0" />

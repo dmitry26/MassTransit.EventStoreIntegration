@@ -36,7 +36,7 @@ namespace MassTransit.EventStoreIntegration.Saga
             return saga;
         }
 
-        private string StreamName(Guid correlationId) =>
+        private static string StreamName(Guid correlationId) =>
             TypeMapping.GetTypeName(typeof(TSaga)) + "-" + correlationId.ToString("N");
 
         public async Task Send<T>(ConsumeContext<T> context, ISagaPolicy<TSaga, T> policy,
@@ -48,10 +48,9 @@ namespace MassTransit.EventStoreIntegration.Saga
             _logger.Debug($"SAGA: Send {context.Message.GetType().FullName}");
 
             var sagaId = context.CorrelationId.Value;
-            TSaga instance;
 
-            if (policy.PreInsertInstance(context, out instance))
-                await PreInsertSagaInstance<T>(instance).ConfigureAwait(false);
+            if (policy.PreInsertInstance(context, out var instance))
+                await PreInsertSagaInstance<T>(instance, context.MessageId).ConfigureAwait(false);
 
             if (instance == null)
                 instance = await GetSaga(sagaId);
@@ -97,7 +96,11 @@ namespace MassTransit.EventStoreIntegration.Saga
                 await policy.Existing(sagaConsumeContext, next).ConfigureAwait(false);
 
                 if (!sagaConsumeContext.IsCompleted)
-                    await _connection.SaveEvents(instance.StreamName, instance.GetChanges(), instance.ExpectedVersion);
+                    await _connection.SaveEvents(
+                        instance.StreamName,
+                        instance.GetChanges(),
+                        instance.ExpectedVersion,
+                        new EventMetadata{ CorrelationId = instance.CorrelationId, CausationId = context.MessageId});
             }
             catch (EventStoreSagaConcurrencyException)
             {
@@ -113,11 +116,15 @@ namespace MassTransit.EventStoreIntegration.Saga
             }
         }
 
-        async Task<bool> PreInsertSagaInstance<T>(TSaga instance)
+        async Task<bool> PreInsertSagaInstance<T>(TSaga instance, Guid? causationId)
         {
             try
             {
-                await _connection.SaveEvents(instance.StreamName, instance.GetChanges(), instance.ExpectedVersion);
+                await _connection.SaveEvents(
+                    instance.StreamName,
+                    instance.GetChanges(),
+                    instance.ExpectedVersion,
+                    new EventMetadata{CorrelationId = instance.CorrelationId, CausationId = causationId});
 
                 if (_logger.IsDebugEnabled)
                     _logger.DebugFormat("SAGA: {0}:{1} Insert {2}", TypeMetadataCache<TSaga>.ShortName,
@@ -136,9 +143,10 @@ namespace MassTransit.EventStoreIntegration.Saga
             }
         }
 
-        static TSaga SagaFactory()
+        private static TSaga SagaFactory()
         {
-            var ctor = typeof (TSaga).GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            var ctor = typeof(TSaga).GetConstructor(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null, new Type[0], null);
             return (TSaga) ctor.Invoke(new object[0]);
         }
@@ -180,7 +188,11 @@ namespace MassTransit.EventStoreIntegration.Saga
                 await _next.Send(proxy).ConfigureAwait(false);
 
                 if (!proxy.IsCompleted)
-                    await _connection.SaveEvents(instance.StreamName,instance.GetChanges(),instance.ExpectedVersion);
+                    await _connection.SaveEvents(
+                        instance.StreamName,
+                        instance.GetChanges(),
+                        instance.ExpectedVersion,
+                        new EventMetadata {CorrelationId = instance.CorrelationId, CausationId = context.MessageId});
             }
         }
     }

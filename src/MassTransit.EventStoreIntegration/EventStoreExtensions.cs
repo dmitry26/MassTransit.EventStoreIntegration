@@ -17,8 +17,8 @@ namespace MassTransit.EventStoreIntegration
         public static async Task<long> SaveEvents(this IEventStoreConnection connection,
             string streamIdentifier,
             IEnumerable<object> events,
-            long expectedVersion = ExpectedVersion.Any,
-            object metadata = null)
+            long expectedVersion,
+            EventMetadata metadata)
         {
             var esEvents = events
                 .Select(x =>
